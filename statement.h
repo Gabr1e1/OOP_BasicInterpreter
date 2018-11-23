@@ -12,56 +12,66 @@
 #ifndef _statement_h
 #define _statement_h
 
+#include <string>
 #include "evalstate.h"
 #include "exp.h"
+#include "parser.h"
 
-/*
- * Class: Statement
- * ----------------
- * This class is used to represent a statement in a program.
- * The model for this class is Expression in the exp.h interface.
- * Like Expression, Statement is an abstract class with subclasses
- * for each of the statement and command types required for the
- * BASIC interpreter.
- */
+ /*
+  * Class: Statement
+  * ----------------
+  * This class is used to represent a statement in a program.
+  * The model for this class is Expression in the exp.h interface.
+  * Like Expression, Statement is an abstract class with subclasses
+  * for each of the statement and command types required for the
+  * BASIC interpreter.
+  */
 
-class Statement {
+enum StatementType { SEQUENTIAL, CONTROL, DIRECTLY_EXECUTED, COMMAND };
+
+class Statement
+{
 
 public:
 
-/*
- * Constructor: Statement
- * ----------------------
- * The base class constructor is empty.  Each subclass must provide
- * its own constructor.
- */
+	/*
+	 * Constructor: Statement
+	 * ----------------------
+	 * The base class constructor is empty.  Each subclass must provide
+	 * its own constructor.
+	 */
+	Statement() = default;
+	Statement(const string &line);
 
-   Statement();
+	/*
+	 * Destructor: ~Statement
+	 * Usage: delete stmt;
+	 * -------------------
+	 * The destructor deallocates the storage for this expression.
+	 * It must be declared virtual to ensure that the correct subclass
+	 * destructor is called when deleting a statement.
+	 */
 
-/*
- * Destructor: ~Statement
- * Usage: delete stmt;
- * -------------------
- * The destructor deallocates the storage for this expression.
- * It must be declared virtual to ensure that the correct subclass
- * destructor is called when deleting a statement.
- */
+	virtual ~Statement();
 
-   virtual ~Statement();
+	/*
+	 * Method: execute
+	 * Usage: stmt->execute(state);
+	 * ----------------------------
+	 * This method executes a BASIC statement.  Each of the subclasses
+	 * defines its own execute method that implements the necessary
+	 * operations.  As was true for the expression evaluator, this
+	 * method takes an EvalState object for looking up variables or
+	 * controlling the operation of the interpreter.
+	 */
 
-/*
- * Method: execute
- * Usage: stmt->execute(state);
- * ----------------------------
- * This method executes a BASIC statement.  Each of the subclasses
- * defines its own execute method that implements the necessary
- * operations.  As was true for the expression evaluator, this
- * method takes an EvalState object for looking up variables or
- * controlling the operation of the interpreter.
- */
+	virtual void execute(EvalState & state) = 0;
 
-   virtual void execute(EvalState & state) = 0;
+private:
+	StatementType analyze_statement(const string &line);
 
+protected:
+	string line;
 };
 
 /*
@@ -74,5 +84,50 @@ public:
  * an Expression object), the class implementation must also
  * specify its own destructor method to free that memory.
  */
+
+class SequentialStatement : public Statement
+{
+public:
+	SequentialStatement(string &_line);
+	~SequentialStatement();
+
+public:
+	void execute(EvalState &state);
+
+private:
+	int typeId;
+	Expression *exp;
+	string identifier, statement; //identifier + statement
+};
+
+class ControlStatement : public Statement
+{
+public:
+	ControlStatement(string &_line);
+	~ControlStatement();
+
+public:
+	void execute(EvalState &state);
+	int getNextLine();
+
+private:
+	Expression *lhs, *rhs;
+	int gotoLine, typeId, cmpId;
+};
+
+class DirectlyExecutedStatement : public Statement
+{
+public:
+	DirectlyExecutedStatement(string &line);
+	~DirectlyExecutedStatement();
+
+public:
+	void execute(EvalState &state);
+
+private:
+	int typeId;
+	string statement;
+	Expression *exp;
+};
 
 #endif

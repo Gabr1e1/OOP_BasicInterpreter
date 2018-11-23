@@ -7,16 +7,165 @@
  * BASIC statements.
  */
 
-#include <string>
 #include "statement.h"
 using namespace std;
 
 /* Implementation of the Statement class */
 
-Statement::Statement() {
-   /* Empty */
+Statement::Statement(const string &_line) : line(_line)
+{
+	/* Empty */
 }
 
-Statement::~Statement() {
-   /* Empty */
+Statement::~Statement()
+{
+	/* Empty */
+}
+
+StatementType Statement::analyze_statement(const string &line)
+{
+	if (line == "RUN" || line == "LIST" || line == "CLEAR" || line == "QUIT" || line == "HELP") return COMMAND;
+	bool hasLineNum = (line[0] >= '0' && line[0] <= '9');
+	if (hasLineNum)
+	{
+
+	}
+	else return DIRECTLY_EXECUTED;
+}
+
+
+SequentialStatement::SequentialStatement(string &_line) : Statement(_line)
+{
+	int p = line.find(" ");
+	identifier = line.substr(0, p);
+	statement = line.substr(p + 1, line.length() - p - 1);
+
+	if (identifier == "REM") typeId = 1;
+	else if (identifier == "LET") typeId = 2;
+	else if (identifier == "PRINT") typeId = 3;
+	else if (identifier == "INPUT") typeId = 4;
+	else if (identifier == "END") typeId = 5;
+}
+
+SequentialStatement::~SequentialStatement()
+{
+	delete exp;
+}
+
+void SequentialStatement::execute(EvalState &state)
+{
+	if (typeId == 1) return;
+	if (typeId == 5) return; //Todo : fix the action when END is encountered
+	if (typeId == 4)
+	{
+		string val;
+		cin >> "?" >> val;
+		statement += " = " + stringToInteger(val); //Todo : exception handling
+	}
+
+	if (typeId == 2 || typeId == 3 || typeId == 4)
+	{
+		TokenScanner scanner;
+		scanner.ignoreWhitespace();
+		scanner.setInput(statement);
+		exp = parseExp(scanner);
+	}
+
+	if (typeId == 2) exp->eval(state);
+	if (typeId == 3) cout << (exp->eval(state)) << endl;
+	if (typeId == 4) exp->eval(state);
+}
+
+ControlStatement::ControlStatement(string &_line) : Statement(_line)
+{
+	int p = line.find(" ");
+	string identifier = line.substr(0, p);
+	string statement = line.substr(p + 1, line.length() - p - 1);
+	
+	if (identifier == "GOTO")
+	{
+		typeId = 1;
+		gotoLine = stringToInteger(statement);
+	}
+	else
+	{
+		typeId = 2;
+		p = statement.find("THEN");
+		gotoLine = stringToInteger(statement.substr(p + 1, line.length() - p - 1));
+		statement = statement.substr(0, p - 1);
+		p = statement.find('<'), cmpId = 1;
+		if (p == string::npos) p = statement.find('>'), cmpId = 2;
+		else p = statement.find('='), cmpId = 3;
+
+		TokenScanner scanner;
+		scanner.ignoreWhitespace();
+		
+		scanner.setInput(statement.substr(0, p - 1));
+		lhs = parseExp(scanner);
+
+		scanner.setInput(statement.substr(p + 1, statement.size() - p - 1));
+		rhs = parseExp(scanner);
+	}
+}
+
+ControlStatement::~ControlStatement()
+{
+	delete lhs;
+	delete rhs;
+}
+
+void ControlStatement::execute(EvalState &state)
+{
+	if (typeId == 1) return;
+	int valLeft = lhs->eval(state);
+	int valRight = rhs->eval(state);
+	if (cmpId == 1) // <
+	{
+		if (valLeft >= valRight) gotoLine = 0; //Todo : negative or zero line number may cause Runtime Error
+	}
+	else if (cmpId == 2) // >
+	{
+		if (valLeft <= valRight) gotoLine = 0;
+	}
+	else
+	{
+		if (valLeft != valRight) gotoLine = 0;
+	}
+}
+
+int ControlStatement::getNextLine()
+{
+	return gotoLine;
+}
+
+DirectlyExecutedStatement::DirectlyExecutedStatement(string &_line) : Statement(_line)
+{
+	int p = line.find(" ");
+	string identifier = line.substr(0, p);
+	string statement = line.substr(p + 1, line.length() - p - 1);
+
+	if (identifier == "LET") typeId = 1;
+	else if (identifier == "PRINT") typeId = 2;
+	else if (identifier == "INPUT") typeId = 3;
+}
+
+DirectlyExecutedStatement::~DirectlyExecutedStatement()
+{
+	delete exp;
+}
+
+void DirectlyExecutedStatement::execute(EvalState &state)
+{
+	if (typeId == 1)
+	{
+		string val;
+		cin >> "?" >> val;
+		statement += " = " + stringToInteger(val);
+	}
+	TokenScanner scanner;
+	scanner.ignoreWhitespace();
+	scanner.setInput(statement);
+	exp = parseExp(scanner);
+	if (typeId == 2) cout << exp->eval(state) << endl;
+	else exp->eval(state);
 }
