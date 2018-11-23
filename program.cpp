@@ -9,7 +9,6 @@
  */
 
 #include "program.h"
-#include "statement.h"
 using namespace std;
 
 Program::Program()
@@ -93,7 +92,7 @@ void Program::execute()
 		if (type == SEQUENTIAL)
 		{
 			cur.second->execute(state);
-			if ((static_cast<SequentialStatement*>(cur.second))->hasEnd) break;
+			if ((static_cast<SequentialStatement*>(cur.second))->hasEnd()) break;
 			int t = getNextLineNumber(cur.first);
 			cur = make_pair(t, programTable.count(t) ? programTable[t] : nullptr);
 		}

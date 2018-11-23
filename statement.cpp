@@ -10,13 +10,13 @@
 #include "statement.h"
 using namespace std;
 
-StatementType analyzeStatement(string line) //line must be a complete line, nothing truncated
+StatementType analyzeStatement(string &line) //line must be a complete line, nothing truncated
 {
 	if (line == "RUN" || line == "LIST" || line == "CLEAR" || line == "QUIT" || line == "HELP") return COMMAND;
 	bool hasLineNum = (line[0] >= '0' && line[0] <= '9');
 	if (hasLineNum)
 	{
-		int p = line.find(" ");
+		size_t p = line.find(" ");
 		string identifier = line.substr(0, p);
 		if (identifier == "IF" || identifier == "GOTO") return CONTROL;
 		else return SEQUENTIAL;
@@ -29,7 +29,7 @@ StatementType analyzeStatement(string line) //line must be a complete line, noth
 Statement::Statement(string &_line) : line(_line), lineNumber(0)
 {
 	if (!(line[0] >= '0' && line[0] <= '9')) return;
-	int p = line.find(" ");
+	size_t p = line.find(" ");
 	lineNumber = stringToInteger(line.substr(0, p - 1));
 	line = line.substr(p + 1, line.length() - p - 1);
 }
@@ -46,7 +46,7 @@ string Statement::getLine()
 
 SequentialStatement::SequentialStatement(string &_line) : Statement(_line), terminated(false)
 {
-	int p = line.find(" ");
+	size_t p = line.find(" ");
 	identifier = line.substr(0, p);
 	statement = line.substr(p + 1, line.length() - p - 1);
 
@@ -70,11 +70,16 @@ bool SequentialStatement::hasEnd()
 void SequentialStatement::execute(EvalState &state)
 {
 	if (typeId == 1) return;
-	if (typeId == 5) return; //Todo : fix the action when END is encountered
+	if (typeId == 5)
+	{
+		terminated = true;
+		return;
+	}
 	if (typeId == 4)
 	{
 		string val;
-		cin >> "?" >> val;
+		cout << "?";
+		cin >> val;
 		statement += " = " + stringToInteger(val); //Todo : exception handling
 	}
 
@@ -93,7 +98,7 @@ void SequentialStatement::execute(EvalState &state)
 
 ControlStatement::ControlStatement(string &_line) : Statement(_line)
 {
-	int p = line.find(" ");
+	size_t p = line.find(" ");
 	string identifier = line.substr(0, p);
 	string statement = line.substr(p + 1, line.length() - p - 1);
 	
@@ -155,7 +160,7 @@ int ControlStatement::getNextLine()
 
 DirectlyExecutedStatement::DirectlyExecutedStatement(string &_line) : Statement(_line)
 {
-	int p = line.find(" ");
+	size_t p = line.find(" ");
 	string identifier = line.substr(0, p);
 	string statement = line.substr(p + 1, line.length() - p - 1);
 
@@ -174,7 +179,8 @@ void DirectlyExecutedStatement::execute(EvalState &state)
 	if (typeId == 1)
 	{
 		string val;
-		cin >> "?" >> val;
+		cout << "?";
+		cin >> val;
 		statement += " = " + stringToInteger(val);
 	}
 	TokenScanner scanner;

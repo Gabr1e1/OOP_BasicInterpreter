@@ -13,6 +13,7 @@
 #include "exp.h"
 #include "parser.h"
 #include "program.h"
+#include "statement.h"
 #include "../StanfordCPPLib/error.h"
 #include "../StanfordCPPLib/tokenscanner.h"
 
@@ -73,7 +74,7 @@ ResultType processLine(string line, Program & program, EvalState & state)
 	}
 	else
 	{
-		int p = line.find(" ");
+		size_t p = line.find(" ");
 		if (line[0] >= '0' && line[0] <= '9')
 		{
 			int curLine = stringToInteger(line.substr(0, p - 1));
