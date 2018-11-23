@@ -10,11 +10,28 @@
 #include "statement.h"
 using namespace std;
 
+StatementType analyzeStatement(string line) //line must be a complete line, nothing truncated
+{
+	if (line == "RUN" || line == "LIST" || line == "CLEAR" || line == "QUIT" || line == "HELP") return COMMAND;
+	bool hasLineNum = (line[0] >= '0' && line[0] <= '9');
+	if (hasLineNum)
+	{
+		int p = line.find(" ");
+		string identifier = line.substr(0, p);
+		if (identifier == "IF" || identifier == "GOTO") return CONTROL;
+		else return SEQUENTIAL;
+	}
+	else return DIRECTLY_EXECUTED;
+}
+
 /* Implementation of the Statement class */
 
-Statement::Statement(const string &_line) : line(_line)
+Statement::Statement(string &_line) : line(_line), lineNumber(0)
 {
-	/* Empty */
+	if (!(line[0] >= '0' && line[0] <= '9')) return;
+	int p = line.find(" ");
+	lineNumber = stringToInteger(line.substr(0, p - 1));
+	line = line.substr(p + 1, line.length() - p - 1);
 }
 
 Statement::~Statement()
@@ -22,17 +39,10 @@ Statement::~Statement()
 	/* Empty */
 }
 
-StatementType Statement::analyze_statement(const string &line)
+string Statement::getLine()
 {
-	if (line == "RUN" || line == "LIST" || line == "CLEAR" || line == "QUIT" || line == "HELP") return COMMAND;
-	bool hasLineNum = (line[0] >= '0' && line[0] <= '9');
-	if (hasLineNum)
-	{
-
-	}
-	else return DIRECTLY_EXECUTED;
+	return line;
 }
-
 
 SequentialStatement::SequentialStatement(string &_line) : Statement(_line)
 {

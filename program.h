@@ -9,6 +9,7 @@
 #define _program_h
 
 #include <string>
+#include <map>
 #include "statement.h"
 using namespace std;
 
@@ -136,9 +137,8 @@ public:
    int getNextLineNumber(int lineNumber);
 
 private:
-
-// Fill this in with whatever types and instance variables you need
-
+	map<int, Statement*> programTable;
+	EvalState state;
 };
 
 #endif

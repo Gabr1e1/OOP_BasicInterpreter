@@ -29,6 +29,8 @@
 
 enum StatementType { SEQUENTIAL, CONTROL, DIRECTLY_EXECUTED, COMMAND };
 
+StatementType analyzeStatement(string &line);
+
 class Statement
 {
 
@@ -41,7 +43,7 @@ public:
 	 * its own constructor.
 	 */
 	Statement() = default;
-	Statement(const string &line);
+	Statement(string &_line);
 
 	/*
 	 * Destructor: ~Statement
@@ -67,11 +69,12 @@ public:
 
 	virtual void execute(EvalState & state) = 0;
 
-private:
-	StatementType analyze_statement(const string &line);
+public:
+	string getLine();
 
 protected:
 	string line;
+	int lineNumber;
 };
 
 /*
