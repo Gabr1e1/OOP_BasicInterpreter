@@ -71,8 +71,8 @@ public:
 
 public:
 	string getLine();
-
 protected:
+	bool terminated;
 	string line;
 	int lineNumber;
 };
@@ -96,8 +96,10 @@ public:
 
 public:
 	void execute(EvalState &state);
+	bool hasEnd();
 
 private:
+	bool terminated;
 	int typeId;
 	Expression *exp;
 	string identifier, statement; //identifier + statement

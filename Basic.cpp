@@ -1,8 +1,7 @@
 /*
  * File: Basic.cpp
  * ---------------
- * Name: [TODO: enter name here]
- * Section: [TODO: enter section leader here]
+ * Name: Zhang Zhicheng
  * This file is the starter project for the BASIC interpreter from
  * Assignment #6.
  * [TODO: extend and correct the documentation]
@@ -23,23 +22,33 @@ using namespace std;
 
 /* Function prototypes */
 
-void processLine(string line, Program & program, EvalState & state);
+ResultType processLine(string line, Program & program, EvalState & state);
 
 /* Main program */
 
-int main() {
-   EvalState state;
-   Program program;
-   cout << "Stub implementation of BASIC" << endl;
-   cout << "Try" << endl;
-   while (true) {
-      try {
-         processLine(getLine(), program, state);
-      } catch (ErrorException & ex) {
-         cerr << "Error: " << ex.getMessage() << endl;
-      }
-   }
-   return 0;
+int main()
+{
+	EvalState state;
+	Program program;
+	cout << "Implementation of BASIC" << endl;
+	while (true)
+	{
+		try
+		{
+			ResultType t = processLine(getLine(), program, state);
+			if (t == EXECUTED) continue;
+			else if (t == QUIT) break;
+			else if (t == HELP)
+			{
+				cout << "Help functionality not provided" << endl;
+			}
+		}
+		catch (ErrorException &ex)
+		{
+			cerr << "Error: " << ex.getMessage() << endl;
+		}
+	}
+	return 0;
 }
 
 /*
@@ -55,13 +64,26 @@ int main() {
  * or one of the BASIC commands, such as LIST or RUN.
  */
 
-void processLine(string line, Program & program, EvalState & state) {
-   TokenScanner scanner;
-   scanner.ignoreWhitespace();
-   scanner.scanNumbers();
-   scanner.setInput(line);
-   Expression *exp = parseExp(scanner);
-   int value = exp->eval(state);
-   cout << value << endl;
-   delete exp;
+ResultType processLine(string line, Program & program, EvalState & state)
+{
+	StatementType curType = analyzeStatement(line);
+	if (curType == COMMAND)
+	{
+		return program.runCommand(line);
+	}
+	else
+	{
+		int p = line.find(" ");
+		if (line[0] >= '0' && line[0] <= '9')
+		{
+			int curLine = stringToInteger(line.substr(0, p - 1));
+			if (p == string::npos) program.removeSourceLine(curLine);
+			else program.addSourceLine(curLine, line);
+		}
+		else
+		{
+			program.addSourceLine(0, line);
+		}
+		return EXECUTED;
+	}
 }

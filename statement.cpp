@@ -44,7 +44,7 @@ string Statement::getLine()
 	return line;
 }
 
-SequentialStatement::SequentialStatement(string &_line) : Statement(_line)
+SequentialStatement::SequentialStatement(string &_line) : Statement(_line), terminated(false)
 {
 	int p = line.find(" ");
 	identifier = line.substr(0, p);
@@ -60,6 +60,11 @@ SequentialStatement::SequentialStatement(string &_line) : Statement(_line)
 SequentialStatement::~SequentialStatement()
 {
 	delete exp;
+}
+
+bool SequentialStatement::hasEnd()
+{
+	return terminated;
 }
 
 void SequentialStatement::execute(EvalState &state)
