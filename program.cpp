@@ -117,7 +117,7 @@ ResultType Program::runCommand(string &line)
 	{
 		for (auto u : programTable)
 		{
-			cout << u.first << " " << u.second->getLine() << endl;
+			cout << u.second->getLine() << endl;
 		}
 	}
 	else if (line == "CLEAR") clear();
