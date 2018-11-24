@@ -16,6 +16,7 @@
 #include "evalstate.h"
 #include "exp.h"
 #include "parser.h"
+#include "../StanfordCPPLib/error.h"
 
  /*
   * Class: Statement
@@ -112,7 +113,7 @@ public:
 
 public:
 	void execute(EvalState &state);
-	int getNextLine();
+	int getNextLine(EvalState &state);
 
 private:
 	Expression *lhs, *rhs;

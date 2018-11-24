@@ -74,34 +74,43 @@ void SequentialStatement::execute(EvalState &state)
 		terminated = true;
 		return;
 	}
+	string addStr = "";
 	if (typeId == 4)
 	{
-		string val;
-		cout << "?";
-		cin >> val;
-		statement += " = " + stringToInteger(val); //Todo : exception handling
+		string val = "";
+		while (true)
+		{
+			try
+			{
+				cout << "?";
+				cin >> val;
+				stringToInteger(val);
+				break;
+			}
+			catch (...)
+			{
+				cout << "INVALID NUMBER" << endl;
+			}
+		}
+		addStr = " = " + val;
 	}
 
-	if (typeId == 2 || typeId == 3 || typeId == 4)
-	{
-		TokenScanner scanner;
-		scanner.ignoreWhitespace();
-		scanner.setInput(statement);
-		exp = parseExp(scanner);
-	}
+	TokenScanner scanner;
+	scanner.ignoreWhitespace();
+	scanner.setInput(statement + addStr);
+	exp = parseExp(scanner);
 
-	if (typeId == 2) exp->eval(state);
 	if (typeId == 3) cout << (exp->eval(state)) << endl;
-	if (typeId == 4) exp->eval(state);
+	else exp->eval(state);
 }
 
-ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0)
+ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0), gotoLine(0)
 {
 	string t = line.substr(line.find(" ") + 1, line.length() - line.find(" ") - 1);
 	size_t p = t.find(" ");
 	string identifier = t.substr(0, p);
 	string statement = t.substr(p + 1, t.length() - p - 1);
-	
+
 	if (identifier == "GOTO")
 	{
 		typeId = 1;
@@ -111,20 +120,21 @@ ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0)
 	{
 		typeId = 2;
 		p = statement.find("THEN");
-		gotoLine = stringToInteger(statement.substr(p + 4, statement.length() - p - 1));
+		gotoLine = stringToInteger(statement.substr(p + 5, statement.length() - p - 5));
 		statement = statement.substr(0, p);
 		p = statement.find('<'), cmpId = 1;
 		if (p == string::npos) p = statement.find('>'), cmpId = 2;
-		else p = statement.find('='), cmpId = 3;
+		if (p == string::npos) p = statement.find('='), cmpId = 3;
+		if (p == string::npos) error("SYNTAX ERROR");
 
-		TokenScanner scanner;
-		scanner.ignoreWhitespace();
-		
-		scanner.setInput(statement.substr(0, p));
-		lhs = parseExp(scanner);
+		TokenScanner scanner1, scanner2;
+		scanner1.ignoreWhitespace(); scanner2.ignoreWhitespace();
 
-		scanner.setInput(statement.substr(p + 1, statement.size() - p - 1));
-		rhs = parseExp(scanner);
+		scanner1.setInput(statement.substr(0, p));
+		lhs = parseExp(scanner1);
+
+		scanner2.setInput(statement.substr(p + 1, statement.size() - p - 1));
+		rhs = parseExp(scanner2);
 	}
 }
 
@@ -136,25 +146,28 @@ ControlStatement::~ControlStatement()
 
 void ControlStatement::execute(EvalState &state)
 {
-	if (typeId == 1) return;
+	/* Function not needed, all implemented in getNextLine()*/
+}
+
+int ControlStatement::getNextLine(EvalState &state)
+{
+	if (typeId == 1) return gotoLine;
+
 	int valLeft = lhs->eval(state);
 	int valRight = rhs->eval(state);
+	//cout << "Eval: " << valLeft << " " << valRight << " "<<gotoLine << endl;
 	if (cmpId == 1) // <
 	{
-		if (valLeft >= valRight) gotoLine = 0; //Todo : negative or zero line number may cause Runtime Error
+		if (valLeft >= valRight) return 0;
 	}
 	else if (cmpId == 2) // >
 	{
-		if (valLeft <= valRight) gotoLine = 0;
+		if (valLeft <= valRight) return 0;
 	}
-	else
+	else if (cmpId == 3)
 	{
-		if (valLeft != valRight) gotoLine = 0;
+		if (valLeft != valRight) return 0;
 	}
-}
-
-int ControlStatement::getNextLine()
-{
 	return gotoLine;
 }
 
@@ -176,17 +189,32 @@ DirectlyExecutedStatement::~DirectlyExecutedStatement()
 
 void DirectlyExecutedStatement::execute(EvalState &state)
 {
+	string addStr = "";
 	if (typeId == 3)
 	{
-		string val;
-		cout << "?";
-		cin >> val;
-		statement += " = " + stringToInteger(val);
+		string val = "";
+		while (true)
+		{
+			try
+			{
+				cout << "?";
+				cin >> val;
+				stringToInteger(val);
+				break;
+			}
+			catch (...)
+			{
+				cout << "INVALID NUMBER" << endl;
+			}
+		}
+		addStr = " = " + val;
 	}
+
 	TokenScanner scanner;
 	scanner.ignoreWhitespace();
-	scanner.setInput(statement);
+	scanner.setInput(statement + addStr);
 	exp = parseExp(scanner);
+
 	if (typeId == 2) cout << exp->eval(state) << endl;
 	else exp->eval(state);
 }

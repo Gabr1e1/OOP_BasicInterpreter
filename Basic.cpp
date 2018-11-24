@@ -42,6 +42,7 @@ int main()
 			else if (t == HELP)
 			{
 				cout << "Help functionality not provided" << endl;
+				cout << "Please refer to the manual" << endl;
 			}
 		}
 		catch (ErrorException &ex)
@@ -67,6 +68,7 @@ int main()
 
 ResultType processLine(string line, Program & program, EvalState & state)
 {
+	if (line.length() == 0) return EXECUTED;
 	StatementType curType = analyzeStatement(line);
 	if (curType == COMMAND)
 	{

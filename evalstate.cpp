@@ -12,24 +12,45 @@
 #include "../StanfordCPPLib/map.h"
 using namespace std;
 
+const int RESERVED_KEYWORD_SIZE = 12;
+const string RESERVED_KEYWORD[RESERVED_KEYWORD_SIZE] = { "REM", "LET", "PRINT", "END", "GOTO",
+									"IF", "THEN", "RUN", "LIST", "CLEAR",
+									"QUIT", "HELP" };
+
 /* Implementation of the EvalState class */
 
-EvalState::EvalState() {
-   /* Empty */
+EvalState::EvalState()
+{
+	/* Empty */
 }
 
-EvalState::~EvalState() {
-   /* Empty */
+EvalState::~EvalState()
+{
+	/* Empty */
 }
 
-void EvalState::setValue(string var, int value) {
-   symbolTable.put(var, value);
+bool check(string var)
+{
+	for (int i = 0; i < RESERVED_KEYWORD_SIZE; i++)
+	{
+		if (var == RESERVED_KEYWORD[i]) return false;
+	}
+	if (var[0] >= '0' && var[0] <= '9') return false;
+	return true;
 }
 
-int EvalState::getValue(string var) {
-   return symbolTable.get(var);
+void EvalState::setValue(string var, int value)
+{
+	if (check(var)) symbolTable.put(var, value);
+	else error("SYNTAX ERROR");
 }
 
-bool EvalState::isDefined(string var) {
-   return symbolTable.containsKey(var);
+int EvalState::getValue(string var)
+{
+	return symbolTable.get(var);
+}
+
+bool EvalState::isDefined(string var)
+{
+	return symbolTable.containsKey(var);
 }

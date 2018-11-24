@@ -13,7 +13,7 @@ using namespace std;
 
 Program::Program()
 {
-	/* Empty */
+	state = new EvalState();
 }
 
 Program::~Program()
@@ -42,7 +42,7 @@ void Program::addSourceLine(int lineNumber, string line)
 	else if (typeId == DIRECTLY_EXECUTED)
 	{
 		auto cur = DirectlyExecutedStatement(line);
-		cur.execute(state);
+		cur.execute(*state);
 	}
 }
 
@@ -60,7 +60,7 @@ string Program::getSourceLine(int lineNumber)
 
 void Program::setParsedStatement(int lineNumber, Statement *stmt)
 {
-	/* 
+	/*
 	Method not needed
 	Parsing already done in the constructor
 	*/
@@ -85,26 +85,27 @@ int Program::getNextLineNumber(int lineNumber)
 
 void Program::execute()
 {
-	// cerr << "Current number of lines: " << programTable.size() << endl;
+	if (state != nullptr) delete state;
+	state = new EvalState();
 
-	pair<int,Statement*> cur = *programTable.begin();
+	pair<int, Statement*> cur = *programTable.begin();
 	while (cur.first != -1)
 	{
-		//cout << cur.second->getLine() << endl;
+		//cout << "Current line: " << cur.first << " " << cur.second->getLine() << endl;
 		auto type = analyzeStatement(cur.second->getLine());
 		if (type == SEQUENTIAL)
 		{
-			cur.second->execute(state);
+			cur.second->execute(*state);
 			if ((static_cast<SequentialStatement*>(cur.second))->hasEnd()) break;
 			int t = getNextLineNumber(cur.first);
 			cur = make_pair(t, programTable.count(t) ? programTable[t] : nullptr);
 		}
 		if (type == CONTROL)
 		{
-			cur.second->execute(state);
-			int t = (static_cast<ControlStatement*>(cur.second))->getNextLine();
+			int t = (static_cast<ControlStatement*>(cur.second))->getNextLine(*state);
 			if (t == 0) t = getNextLineNumber(cur.first);
-			cur = make_pair(t, programTable.count(t) ? programTable[t] : nullptr);
+			else if (!programTable.count(t)) error("LINE NUMBER ERROR");
+			cur = make_pair(t, programTable[t]);
 		}
 	}
 }
@@ -120,7 +121,7 @@ ResultType Program::runCommand(string &line)
 		}
 	}
 	else if (line == "CLEAR") clear();
-	
+
 	if (line == "QUIT") return QUIT;
 	else if (line == "HELP") return HELP;
 	else return EXECUTED;

@@ -21,12 +21,14 @@ using namespace std;
  * This code just reads an expression and then checks for extra tokens.
  */
 
-Expression *parseExp(TokenScanner & scanner) {
-   Expression *exp = readE(scanner);
-   if (scanner.hasMoreTokens()) {
-      error("parseExp: Found extra token: " + scanner.nextToken());
-   }
-   return exp;
+Expression *parseExp(TokenScanner & scanner)
+{
+	Expression *exp = readE(scanner);
+	if (scanner.hasMoreTokens())
+	{
+		error("parseExp: Found extra token: " + scanner.nextToken());
+	}
+	return exp;
 }
 
 /*
@@ -40,18 +42,20 @@ Expression *parseExp(TokenScanner & scanner) {
  * readE calls itself recursively to read in that subexpression as a unit.
  */
 
-Expression *readE(TokenScanner & scanner, int prec) {
-   Expression *exp = readT(scanner);
-   string token;
-   while (true) {
-      token = scanner.nextToken();
-      int newPrec = precedence(token);
-      if (newPrec <= prec) break;
-      Expression *rhs = readE(scanner, newPrec);
-      exp = new CompoundExp(token, exp, rhs);
-   }
-   scanner.saveToken(token);
-   return exp;
+Expression *readE(TokenScanner & scanner, int prec)
+{
+	Expression *exp = readT(scanner);
+	string token;
+	while (true)
+	{
+		token = scanner.nextToken();
+		int newPrec = precedence(token);
+		if (newPrec <= prec) break;
+		Expression *rhs = readE(scanner, newPrec);
+		exp = new CompoundExp(token, exp, rhs);
+	}
+	scanner.saveToken(token);
+	return exp;
 }
 
 /*
@@ -61,17 +65,19 @@ Expression *readE(TokenScanner & scanner, int prec) {
  * or a parenthesized subexpression.
  */
 
-Expression *readT(TokenScanner & scanner) {
-   string token = scanner.nextToken();
-   TokenType type = scanner.getTokenType(token);
-   if (type == WORD) return new IdentifierExp(token);
-   if (type == NUMBER) return new ConstantExp(stringToInteger(token));
-   if (token != "(") error("Illegal term in expression");
-   Expression *exp = readE(scanner);
-   if (scanner.nextToken() != ")") {
-      error("Unbalanced parentheses in expression");
-   }
-   return exp;
+Expression *readT(TokenScanner & scanner)
+{
+	string token = scanner.nextToken();
+	TokenType type = scanner.getTokenType(token);
+	if (type == WORD) return new IdentifierExp(token);
+	if (type == NUMBER) return new ConstantExp(stringToInteger(token));
+	if (token != "(") error("Illegal term in expression");
+	Expression *exp = readE(scanner);
+	if (scanner.nextToken() != ")")
+	{
+		error("Unbalanced parentheses in expression");
+	}
+	return exp;
 }
 
 /*
@@ -81,9 +87,10 @@ Expression *readT(TokenScanner & scanner) {
  * and returns the appropriate precedence value.
  */
 
-int precedence(string token) {
-   if (token == "=") return 1;
-   if (token == "+" || token == "-") return 2;
-   if (token == "*" || token == "/") return 3;
-   return 0;
+int precedence(string token)
+{
+	if (token == "=") return 1;
+	if (token == "+" || token == "-") return 2;
+	if (token == "*" || token == "/") return 3;
+	return 0;
 }

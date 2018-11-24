@@ -146,7 +146,7 @@ public:
 
 private:
 	map<int, Statement*> programTable;
-	EvalState state;
+	EvalState *state;
 };
 
 #endif
