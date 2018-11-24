@@ -10,7 +10,7 @@
 #include "statement.h"
 using namespace std;
 
-StatementType analyzeStatement(string &line) //line must be a complete line, nothing truncated
+StatementType analyzeStatement(string line) //line must be a complete line, nothing truncated
 {
 	if (line == "RUN" || line == "LIST" || line == "CLEAR" || line == "QUIT" || line == "HELP") return COMMAND;
 	bool hasLineNum = (line[0] >= '0' && line[0] <= '9');

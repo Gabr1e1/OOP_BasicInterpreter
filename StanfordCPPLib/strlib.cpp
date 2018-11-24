@@ -29,7 +29,7 @@ string integerToString(int n) {
 int stringToInteger(string str) {
    istringstream stream(str);
    int value;
-   stream >> value;
+   stream >> value >> ws;
    if (stream.fail() || !stream.eof()) {
       error("stringToInteger: Illegal integer format (" + str + ")");
    }

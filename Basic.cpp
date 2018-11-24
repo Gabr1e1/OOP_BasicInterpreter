@@ -14,11 +14,11 @@
 #include "parser.h"
 #include "program.h"
 #include "statement.h"
-#include "../StanfordCPPLib/error.h"
-#include "../StanfordCPPLib/tokenscanner.h"
+#include "./StanfordCPPLib/error.h"
+#include "./StanfordCPPLib/tokenscanner.h"
 
-#include "../StanfordCPPLib/simpio.h"
-#include "../StanfordCPPLib/strlib.h"
+#include "./StanfordCPPLib/simpio.h"
+#include "./StanfordCPPLib/strlib.h"
 using namespace std;
 
 /* Function prototypes */

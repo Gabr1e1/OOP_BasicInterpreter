@@ -8,8 +8,7 @@
 
 #include <string>
 #include "evalstate.h"
-
-#include "../StanfordCPPLib/map.h"
+#include "./StanfordCPPLib/map.h"
 using namespace std;
 
 const int RESERVED_KEYWORD_SIZE = 12;

@@ -10,7 +10,7 @@
 #define _evalstate_h
 
 #include <string>
-#include "../StanfordCPPLib/map.h"
+#include "./StanfordCPPLib/map.h"
 
 /*
  * Class: EvalState

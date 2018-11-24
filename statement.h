@@ -16,7 +16,7 @@
 #include "evalstate.h"
 #include "exp.h"
 #include "parser.h"
-#include "../StanfordCPPLib/error.h"
+#include "./StanfordCPPLib/error.h"
 
  /*
   * Class: Statement
@@ -30,7 +30,7 @@
 
 enum StatementType { SEQUENTIAL, CONTROL, DIRECTLY_EXECUTED, COMMAND };
 
-StatementType analyzeStatement(string &line);
+StatementType analyzeStatement(string line);
 
 class Statement
 {

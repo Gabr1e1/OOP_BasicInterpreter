@@ -5,11 +5,10 @@
  */
 
 #include <string>
-#include "../StanfordCPPLib/error.h"
+#include "./StanfordCPPLib/error.h"
 #include "evalstate.h"
 #include "exp.h"
-
-#include "../StanfordCPPLib/strlib.h"
+#include "./StanfordCPPLib/strlib.h"
 
 using namespace std;
 
