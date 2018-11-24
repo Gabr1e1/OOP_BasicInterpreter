@@ -14,7 +14,7 @@ LIB = -lStanfordCPPLib
 
 all: $(PROGRAM) spl.jar
 
-$(PROGRAM): $(CPP_FILES) $(H_FILES) libStanfordCPPLib.a
+code: $(CPP_FILES) $(H_FILES) libStanfordCPPLib.a
 	$(CXX) -o $(PROGRAM) $(CXXFLAGS) $(LDOPTIONS) $(CPP_FILES) $(LIB)
 
 libStanfordCPPLib.a:
