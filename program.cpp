@@ -78,16 +78,19 @@ int Program::getFirstLineNumber()
 
 int Program::getNextLineNumber(int lineNumber)
 {
-	auto t = programTable.lower_bound(lineNumber);
+	auto t = programTable.upper_bound(lineNumber);
 	if (t == programTable.end()) return -1;
 	else return t->first;
 }
 
 void Program::execute()
 {
+	// cerr << "Current number of lines: " << programTable.size() << endl;
+
 	pair<int,Statement*> cur = *programTable.begin();
 	while (cur.first != -1)
 	{
+		//cout << cur.second->getLine() << endl;
 		auto type = analyzeStatement(cur.second->getLine());
 		if (type == SEQUENTIAL)
 		{

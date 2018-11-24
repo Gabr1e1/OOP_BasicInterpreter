@@ -72,7 +72,6 @@ public:
 public:
 	string getLine();
 protected:
-	bool terminated;
 	string line;
 	int lineNumber;
 };

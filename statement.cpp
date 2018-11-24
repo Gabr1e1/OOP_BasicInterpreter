@@ -16,8 +16,9 @@ StatementType analyzeStatement(string &line) //line must be a complete line, not
 	bool hasLineNum = (line[0] >= '0' && line[0] <= '9');
 	if (hasLineNum)
 	{
-		size_t p = line.find(" ");
-		string identifier = line.substr(0, p);
+		string t = line.substr(line.find(" ") + 1, line.length() - line.find(" ") - 1);
+		size_t p = t.find(" ");
+		string identifier = t.substr(0, p);
 		if (identifier == "IF" || identifier == "GOTO") return CONTROL;
 		else return SEQUENTIAL;
 	}
@@ -28,10 +29,7 @@ StatementType analyzeStatement(string &line) //line must be a complete line, not
 
 Statement::Statement(string &_line) : line(_line), lineNumber(0)
 {
-	if (!(line[0] >= '0' && line[0] <= '9')) return;
-	size_t p = line.find(" ");
-	lineNumber = stringToInteger(line.substr(0, p - 1));
-	line = line.substr(p + 1, line.length() - p - 1);
+	/* Empty */
 }
 
 Statement::~Statement()
@@ -44,11 +42,12 @@ string Statement::getLine()
 	return line;
 }
 
-SequentialStatement::SequentialStatement(string &_line) : Statement(_line), terminated(false)
+SequentialStatement::SequentialStatement(string &_line) : Statement(_line), terminated(false), exp(nullptr)
 {
-	size_t p = line.find(" ");
-	identifier = line.substr(0, p);
-	statement = line.substr(p + 1, line.length() - p - 1);
+	string t = line.substr(line.find(" ") + 1, line.length() - line.find(" ") - 1);
+	size_t p = t.find(" ");
+	identifier = t.substr(0, p);
+	statement = t.substr(p + 1, t.length() - p - 1);
 
 	if (identifier == "REM") typeId = 1;
 	else if (identifier == "LET") typeId = 2;
@@ -96,11 +95,12 @@ void SequentialStatement::execute(EvalState &state)
 	if (typeId == 4) exp->eval(state);
 }
 
-ControlStatement::ControlStatement(string &_line) : Statement(_line)
+ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0)
 {
-	size_t p = line.find(" ");
-	string identifier = line.substr(0, p);
-	string statement = line.substr(p + 1, line.length() - p - 1);
+	string t = line.substr(line.find(" ") + 1, line.length() - line.find(" ") - 1);
+	size_t p = t.find(" ");
+	string identifier = t.substr(0, p);
+	string statement = t.substr(p + 1, t.length() - p - 1);
 	
 	if (identifier == "GOTO")
 	{
@@ -111,8 +111,8 @@ ControlStatement::ControlStatement(string &_line) : Statement(_line)
 	{
 		typeId = 2;
 		p = statement.find("THEN");
-		gotoLine = stringToInteger(statement.substr(p + 1, line.length() - p - 1));
-		statement = statement.substr(0, p - 1);
+		gotoLine = stringToInteger(statement.substr(p + 4, statement.length() - p - 1));
+		statement = statement.substr(0, p);
 		p = statement.find('<'), cmpId = 1;
 		if (p == string::npos) p = statement.find('>'), cmpId = 2;
 		else p = statement.find('='), cmpId = 3;
@@ -120,7 +120,7 @@ ControlStatement::ControlStatement(string &_line) : Statement(_line)
 		TokenScanner scanner;
 		scanner.ignoreWhitespace();
 		
-		scanner.setInput(statement.substr(0, p - 1));
+		scanner.setInput(statement.substr(0, p));
 		lhs = parseExp(scanner);
 
 		scanner.setInput(statement.substr(p + 1, statement.size() - p - 1));
@@ -158,11 +158,11 @@ int ControlStatement::getNextLine()
 	return gotoLine;
 }
 
-DirectlyExecutedStatement::DirectlyExecutedStatement(string &_line) : Statement(_line)
+DirectlyExecutedStatement::DirectlyExecutedStatement(string &_line) : Statement(_line), exp(nullptr)
 {
 	size_t p = line.find(" ");
 	string identifier = line.substr(0, p);
-	string statement = line.substr(p + 1, line.length() - p - 1);
+	statement = line.substr(p + 1, line.length() - p - 1);
 
 	if (identifier == "LET") typeId = 1;
 	else if (identifier == "PRINT") typeId = 2;
@@ -176,7 +176,7 @@ DirectlyExecutedStatement::~DirectlyExecutedStatement()
 
 void DirectlyExecutedStatement::execute(EvalState &state)
 {
-	if (typeId == 1)
+	if (typeId == 3)
 	{
 		string val;
 		cout << "?";

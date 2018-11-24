@@ -31,7 +31,7 @@ int main()
 {
 	EvalState state;
 	Program program;
-	cout << "Implementation of BASIC" << endl;
+	//cout << "Implementation of BASIC" << endl;
 	while (true)
 	{
 		try
@@ -77,7 +77,7 @@ ResultType processLine(string line, Program & program, EvalState & state)
 		size_t p = line.find(" ");
 		if (line[0] >= '0' && line[0] <= '9')
 		{
-			int curLine = stringToInteger(line.substr(0, p - 1));
+			int curLine = stringToInteger(line.substr(0, p));
 			if (p == string::npos) program.removeSourceLine(curLine);
 			else program.addSourceLine(curLine, line);
 		}
