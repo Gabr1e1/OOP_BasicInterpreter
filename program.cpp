@@ -24,6 +24,8 @@ Program::~Program()
 void Program::clear()
 {
 	programTable.clear();
+	delete state;
+	state = new EvalState();
 }
 
 void Program::addSourceLine(int lineNumber, string line)
