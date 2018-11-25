@@ -82,7 +82,7 @@ void SequentialStatement::execute(EvalState &state)
 		{
 			try
 			{
-				cout << "?";
+				cout << " ? ";
 				cin >> val;
 				stringToInteger(val);
 				break;
@@ -197,7 +197,7 @@ void DirectlyExecutedStatement::execute(EvalState &state)
 		{
 			try
 			{
-				cout << "?";
+				cout << " ? ";
 				cin >> val;
 				stringToInteger(val);
 				break;
