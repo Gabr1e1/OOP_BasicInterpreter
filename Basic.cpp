@@ -47,7 +47,7 @@ int main()
 		}
 		catch (ErrorException &ex)
 		{
-			cout << "Error: " << ex.getMessage() << endl;
+			cout << ex.getMessage() << endl;
 		}
 	}
 	return 0;
