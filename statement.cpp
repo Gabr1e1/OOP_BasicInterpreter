@@ -83,13 +83,20 @@ void SequentialStatement::execute(EvalState &state)
 			try
 			{
 				cout << " ? ";
-				cin >> val;
+				char ch = getchar();
+				while (ch != '\n')
+				{
+					val += ch;
+					ch = getchar();
+				}
+
 				stringToInteger(val);
 				break;
 			}
 			catch (...)
 			{
 				cout << "INVALID NUMBER" << endl;
+				val = "";
 			}
 		}
 		addStr = " = " + integerToString(stringToInteger(val));
@@ -198,13 +205,20 @@ void DirectlyExecutedStatement::execute(EvalState &state)
 			try
 			{
 				cout << " ? ";
-				cin >> val;
+				char ch = getchar();
+				while (ch != '\n')
+				{
+					val += ch;
+					ch = getchar();
+				}
+
 				stringToInteger(val);
 				break;
 			}
 			catch (...)
 			{
 				cout << "INVALID NUMBER" << endl;
+				val = "";
 			}
 		}
 		addStr = " = " + integerToString(stringToInteger(val));
