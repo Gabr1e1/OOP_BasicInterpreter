@@ -12,7 +12,7 @@ H_FILES = $(wildcard *.h)
 LDOPTIONS = -L.
 LIB = -lStanfordCPPLib
 
-all: code spl.jar
+all: clean code spl.jar
 
 code: $(CPP_FILES) $(H_FILES) libStanfordCPPLib.a
 	$(CXX) -o code $(CXXFLAGS) $(LDOPTIONS) $(CPP_FILES) $(LIB)
