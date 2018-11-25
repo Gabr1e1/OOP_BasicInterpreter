@@ -92,7 +92,7 @@ void SequentialStatement::execute(EvalState &state)
 				cout << "INVALID NUMBER" << endl;
 			}
 		}
-		addStr = " = " + val;
+		addStr = " = " + integerToString(stringToInteger(val));
 	}
 
 	TokenScanner scanner;
@@ -207,7 +207,7 @@ void DirectlyExecutedStatement::execute(EvalState &state)
 				cout << "INVALID NUMBER" << endl;
 			}
 		}
-		addStr = " = " + val;
+		addStr = " = " + integerToString(stringToInteger(val));
 	}
 
 	TokenScanner scanner;
