@@ -12,239 +12,303 @@
 #include "stack.h"
 using namespace std;
 
-TokenScanner::TokenScanner() {
-   initScanner();
-   setInput("");
+TokenScanner::TokenScanner()
+{
+	initScanner();
+	setInput("");
 }
 
-TokenScanner::TokenScanner(string str) {
-   initScanner();
-   setInput(str);
+TokenScanner::TokenScanner(string str)
+{
+	initScanner();
+	setInput(str);
 }
 
-TokenScanner::TokenScanner(istream & infile) {
-   initScanner();
-   setInput(infile);
+TokenScanner::TokenScanner(istream & infile)
+{
+	initScanner();
+	setInput(infile);
 }
 
-TokenScanner::~TokenScanner() {
-   if (stringInputFlag) delete isp;
+TokenScanner::~TokenScanner()
+{
+	if (stringInputFlag) delete isp;
 }
 
-void TokenScanner::setInput(string str) {
-   stringInputFlag = true;
-   buffer = str;
-   isp = new istringstream(buffer);
-   savedTokens = NULL;
+void TokenScanner::setInput(string str)
+{
+	stringInputFlag = true;
+	buffer = str;
+	isp = new istringstream(buffer);
+	savedTokens = NULL;
 }
 
-void TokenScanner::setInput(istream & infile) {
-   stringInputFlag = false;
-   isp = &infile;
-   savedTokens = NULL;
+void TokenScanner::setInput(istream & infile)
+{
+	stringInputFlag = false;
+	isp = &infile;
+	savedTokens = NULL;
 }
 
-bool TokenScanner::hasMoreTokens() {
-   string token = nextToken();
-   saveToken(token);
-   return (token != "");
+bool TokenScanner::hasMoreTokens()
+{
+	string token = nextToken();
+	saveToken(token);
+	return (token != "");
 }
 
-string TokenScanner::nextToken() {
-   if (savedTokens != NULL) {
-      StringCell *cp = savedTokens;
-      string token = cp->str;
-      savedTokens = cp->link;
-      delete cp;
-      return token;
-   }
-   while (true) {
-      if (ignoreWhitespaceFlag) skipSpaces();
-      int ch = isp->get();
-      if (ch == '/' && ignoreCommentsFlag) {
-         ch = isp->get();
-         if (ch == '/') {
-            while (true) {
-               ch = isp->get();
-               if (ch == '\n' || ch == '\r' || ch == EOF) break;
-            }
-            continue;
-         } else if (ch == '*') {
-            int prev = EOF;
-            while (true) {
-               ch = isp->get();
-               if (ch == EOF || (prev == '*' && ch == '/')) break;
-               prev = ch;
-            }
-            continue;
-         }
-         if (ch != EOF) isp->unget();
-         ch = '/';
-      }
-      if (ch == EOF) return "";
-      if ((ch == '"' || ch == '\'') && scanStringsFlag) {
-         isp->unget();
-         return scanString();
-      }
-      if (isdigit(ch) && scanNumbersFlag) {
-         isp->unget();
-         return scanNumber();
-      }
-      if (isWordCharacter(ch)) {
-         isp->unget();
-         return scanWord();
-      }
-      string op = string(1, ch);
-      while (isOperatorPrefix(op)) {
-         ch = isp->get();
-         if (ch == EOF) break;
-         op += ch;
-      }
-      while (op.length() > 1 && !isOperator(op)) {
-         isp->unget();
-         op.erase(op.length() - 1, 1);
-      }
-      return op;
-   }
+string TokenScanner::nextToken()
+{
+	if (savedTokens != NULL)
+	{
+		StringCell *cp = savedTokens;
+		string token = cp->str;
+		savedTokens = cp->link;
+		delete cp;
+		return token;
+	}
+	while (true)
+	{
+		if (ignoreWhitespaceFlag) skipSpaces();
+		int ch = isp->get();
+		if (ch == '/' && ignoreCommentsFlag)
+		{
+			ch = isp->get();
+			if (ch == '/')
+			{
+				while (true)
+				{
+					ch = isp->get();
+					if (ch == '\n' || ch == '\r' || ch == EOF) break;
+				}
+				continue;
+			}
+			else if (ch == '*')
+			{
+				int prev = EOF;
+				while (true)
+				{
+					ch = isp->get();
+					if (ch == EOF || (prev == '*' && ch == '/')) break;
+					prev = ch;
+				}
+				continue;
+			}
+			if (ch != EOF) isp->unget();
+			ch = '/';
+		}
+		if (ch == EOF) return "";
+		if ((ch == '"' || ch == '\'') && scanStringsFlag)
+		{
+			isp->unget();
+			return scanString();
+		}
+		if (isdigit(ch) && scanNumbersFlag)
+		{
+			isp->unget();
+			return scanNumber();
+		}
+		if (ch == '-')
+		{
+			int nxt = isp->get();
+			if (isdigit(nxt))
+			{
+				isp->unget();
+				return "-" + scanNumber();
+			}
+		}
+		if (isWordCharacter(ch))
+		{
+			isp->unget();
+			return scanWord();
+		}
+		string op = string(1, ch);
+		while (isOperatorPrefix(op))
+		{
+			ch = isp->get();
+			if (ch == EOF) break;
+			op += ch;
+		}
+		while (op.length() > 1 && !isOperator(op))
+		{
+			isp->unget();
+			op.erase(op.length() - 1, 1);
+		}
+		return op;
+	}
 }
 
-void TokenScanner::saveToken(string token) {
-   StringCell *cp = new StringCell;
-   cp->str = token;
-   cp->link = savedTokens;
-   savedTokens = cp;
+void TokenScanner::saveToken(string token)
+{
+	StringCell *cp = new StringCell;
+	cp->str = token;
+	cp->link = savedTokens;
+	savedTokens = cp;
 }
 
-void TokenScanner::ignoreWhitespace() {
-   ignoreWhitespaceFlag = true;
+void TokenScanner::ignoreWhitespace()
+{
+	ignoreWhitespaceFlag = true;
 }
 
-void TokenScanner::ignoreComments() {
-   ignoreCommentsFlag = true;
+void TokenScanner::ignoreComments()
+{
+	ignoreCommentsFlag = true;
 }
 
-void TokenScanner::scanNumbers() {
-   scanNumbersFlag = true;
+void TokenScanner::scanNumbers()
+{
+	scanNumbersFlag = true;
 }
 
-void TokenScanner::scanStrings() {
-   scanStringsFlag = true;
+void TokenScanner::scanStrings()
+{
+	scanStringsFlag = true;
 }
 
-void TokenScanner::addWordCharacters(string str) {
-   wordChars += str;
+void TokenScanner::addWordCharacters(string str)
+{
+	wordChars += str;
 }
 
-void TokenScanner::addOperator(string op) {
-   StringCell *cp = new StringCell;
-   cp->str = op;
-   cp->link = operators;
-   operators = cp;
+void TokenScanner::addOperator(string op)
+{
+	StringCell *cp = new StringCell;
+	cp->str = op;
+	cp->link = operators;
+	operators = cp;
 }
 
-int TokenScanner::getPosition() const {
-   if (savedTokens == NULL) {
-      return int(isp->tellg());
-   } else {
-      return int(isp->tellg()) - savedTokens->str.length();
-   }
-   return -1;
+int TokenScanner::getPosition() const
+{
+	if (savedTokens == NULL)
+	{
+		return int(isp->tellg());
+	}
+	else
+	{
+		return int(isp->tellg()) - savedTokens->str.length();
+	}
+	return -1;
 }
 
-bool TokenScanner::isWordCharacter(char ch) const {
-   return isalnum(ch) || wordChars.find(ch) != string::npos;
+bool TokenScanner::isWordCharacter(char ch) const
+{
+	return isalnum(ch) || wordChars.find(ch) != string::npos;
 };
 
-void TokenScanner::verifyToken(string expected) {
-   string token = nextToken();
-   if (token != expected) {
-      string msg = "Found \"" + token + "\"" +
-                   " when expecting \"" + expected + "\"";
-      error(msg);
-   }
+void TokenScanner::verifyToken(string expected)
+{
+	string token = nextToken();
+	if (token != expected)
+	{
+		string msg = "Found \"" + token + "\"" +
+			" when expecting \"" + expected + "\"";
+		error("SYNTAX ERROR"); //error(msg);
+	}
 };
 
-TokenType TokenScanner::getTokenType(string token) const {
-   if (token == "") return TokenType(EOF);
-   char ch = token[0];
-   if (isspace(ch)) return SEPARATOR;
-   if (ch == '"' || (ch == '\'' && token.length() > 1)) return STRING;
-   if (isdigit(ch)) return NUMBER;
-   if (isWordCharacter(ch)) return WORD;
-   return OPERATOR;
+TokenType TokenScanner::getTokenType(string token) const
+{
+	if (token == "") return TokenType(EOF);
+	char ch = token[0];
+	if (isspace(ch)) return SEPARATOR;
+	if (ch == '"' || (ch == '\'' && token.length() > 1)) return STRING;
+	if (isdigit(ch)) return NUMBER;
+	if (ch == '-' && isdigit(token[1])) return NUMBER;
+	if (isWordCharacter(ch)) return WORD;
+	return OPERATOR;
 };
 
-string TokenScanner::getStringValue(string token) const {
-   string str = "";
-   int start = 0;
-   int finish = token.length();
-   if (finish > 1 && (token[0] == '"' || token[0] == '\'')) {
-      start = 1;
-      finish--;
-   }
-   for (int i = start; i < finish; i++) {
-      char ch = token[i];
-      if (ch == '\\') {
-         ch = token[++i];
-         if (isdigit(ch) || ch == 'x') {
-            int base = 8;
-            if (ch == 'x') {
-               base = 16;
-               i++;
-            }
-            int result = 0;
-            int digit = 0;
-            while (i < finish) {
-               ch = token[i];
-               if (isdigit(ch)) {
-                  digit = ch - '0';
-               } else if (isalpha(ch)) {
-                  digit = toupper(ch) - 'A' + 10;
-               } else {
-                  digit = base;
-               }
-               if (digit >= base) break;
-               result = base * result + digit;
-               i++;
-            }
-            ch = char(result);
-            i--;
-         } else {
-            switch (ch) {
-             case 'a': ch = '\a'; break;
-             case 'b': ch = '\b'; break;
-             case 'f': ch = '\f'; break;
-             case 'n': ch = '\n'; break;
-             case 'r': ch = '\r'; break;
-             case 't': ch = '\t'; break;
-             case 'v': ch = '\v'; break;
-             case '"': ch = '"'; break;
-             case '\'': ch = '\''; break;
-             case '\\': ch = '\\'; break;
-            }
-         }
-      }
-      str += ch;
-   }
-   return str;
+string TokenScanner::getStringValue(string token) const
+{
+	string str = "";
+	int start = 0;
+	int finish = token.length();
+	if (finish > 1 && (token[0] == '"' || token[0] == '\''))
+	{
+		start = 1;
+		finish--;
+	}
+	for (int i = start; i < finish; i++)
+	{
+		char ch = token[i];
+		if (ch == '\\')
+		{
+			ch = token[++i];
+			if (isdigit(ch) || ch == 'x')
+			{
+				int base = 8;
+				if (ch == 'x')
+				{
+					base = 16;
+					i++;
+				}
+				int result = 0;
+				int digit = 0;
+				while (i < finish)
+				{
+					ch = token[i];
+					if (isdigit(ch))
+					{
+						digit = ch - '0';
+					}
+					else if (isalpha(ch))
+					{
+						digit = toupper(ch) - 'A' + 10;
+					}
+					else
+					{
+						digit = base;
+					}
+					if (digit >= base) break;
+					result = base * result + digit;
+					i++;
+				}
+				ch = char(result);
+				i--;
+			}
+			else
+			{
+				switch (ch)
+				{
+				case 'a': ch = '\a'; break;
+				case 'b': ch = '\b'; break;
+				case 'f': ch = '\f'; break;
+				case 'n': ch = '\n'; break;
+				case 'r': ch = '\r'; break;
+				case 't': ch = '\t'; break;
+				case 'v': ch = '\v'; break;
+				case '"': ch = '"'; break;
+				case '\'': ch = '\''; break;
+				case '\\': ch = '\\'; break;
+				}
+			}
+		}
+		str += ch;
+	}
+	return str;
 }
 
-int TokenScanner::getChar() {
-   return isp->get();
+int TokenScanner::getChar()
+{
+	return isp->get();
 }
 
-void TokenScanner::ungetChar(int ch) {
-   isp->unget();
+void TokenScanner::ungetChar(int ch)
+{
+	isp->unget();
 }
 
 /* Private methods */
 
-void TokenScanner::initScanner() {
-   ignoreWhitespaceFlag = false;
-   ignoreCommentsFlag = false;
-   scanNumbersFlag = false;
-   scanStringsFlag = false;
-   operators = NULL;
+void TokenScanner::initScanner()
+{
+	ignoreWhitespaceFlag = false;
+	ignoreCommentsFlag = false;
+	scanNumbersFlag = false;
+	scanStringsFlag = false;
+	operators = NULL;
 }
 
 /*
@@ -254,15 +318,18 @@ void TokenScanner::initScanner() {
  * not a whitespace character.
  */
 
-void TokenScanner::skipSpaces() {
-   while (true) {
-      int ch = isp->get();
-      if (ch == EOF) return;
-      if (!isspace(ch)) {
-         isp->unget();
-         return;
-      }
-   }
+void TokenScanner::skipSpaces()
+{
+	while (true)
+	{
+		int ch = isp->get();
+		if (ch == EOF) return;
+		if (!isspace(ch))
+		{
+			isp->unget();
+			return;
+		}
+	}
 }
 
 /*
@@ -272,18 +339,21 @@ void TokenScanner::skipSpaces() {
  * of word characters.
  */
 
-string TokenScanner::scanWord() {
-   string token = "";
-   while (true) {
-      int ch = isp->get();
-      if (ch == EOF) break;
-      if (!isWordCharacter(ch)) {
-         isp->unget();
-         break;
-      }
-      token += char(ch);
-   }
-   return token;
+string TokenScanner::scanWord()
+{
+	string token = "";
+	while (true)
+	{
+		int ch = isp->get();
+		if (ch == EOF) break;
+		if (!isWordCharacter(ch))
+		{
+			isp->unget();
+			break;
+		}
+		token += char(ch);
+	}
+	return token;
 }
 
 /*
@@ -296,75 +366,97 @@ string TokenScanner::scanWord() {
  * determine what characters would be legal at this point in time.
  */
 
-string TokenScanner::scanNumber() {
-   string token = "";
-   NumberScannerState state = INITIAL_STATE;
-   while (state != FINAL_STATE) {
-      int ch = isp->get();
-      int xch = 'e';
-      switch (state) {
-       case INITIAL_STATE:
-         if (!isdigit(ch)) {
-            error("Internal error: illegal call to scanNumber");
-         }
-         state = BEFORE_DECIMAL_POINT;
-         break;
-       case BEFORE_DECIMAL_POINT:
-         if (ch == '.') {
-            state = AFTER_DECIMAL_POINT;
-         } else if (ch == 'E' || ch == 'e') {
-            state = STARTING_EXPONENT;
-            xch = ch;
-         } else if (!isdigit(ch)) {
-            if (ch != EOF) isp->unget();
-            state = FINAL_STATE;
-         }
-         break;
-       case AFTER_DECIMAL_POINT:
-         if (ch == 'E' || ch == 'e') {
-            state = STARTING_EXPONENT;
-            xch = ch;
-         } else if (!isdigit(ch)) {
-            if (ch != EOF) isp->unget();
-            state = FINAL_STATE;
-         }
-         break;
-       case STARTING_EXPONENT:
-         if (ch == '+' || ch == '-') {
-            state = FOUND_EXPONENT_SIGN;
-         } else if (isdigit(ch)) {
-            state = SCANNING_EXPONENT;
-         } else {
-            if (ch != EOF) isp->unget();
-            isp->unget();
-            state = FINAL_STATE;
-         }
-         break;
-       case FOUND_EXPONENT_SIGN:
-         if (isdigit(ch)) {
-            state = SCANNING_EXPONENT;
-         } else {
-            if (ch != EOF) isp->unget();
-            isp->unget();
-            isp->unget();
-            state = FINAL_STATE;
-         }
-         break;
-       case SCANNING_EXPONENT:
-         if (!isdigit(ch)) {
-            if (ch != EOF) isp->unget();
-            state = FINAL_STATE;
-         }
-         break;
-       default:
-         state = FINAL_STATE;
-         break;
-      }
-      if (state != FINAL_STATE) {
-         token += char(ch);
-      }
-   }
-   return token;
+string TokenScanner::scanNumber()
+{
+	string token = "";
+	NumberScannerState state = INITIAL_STATE;
+	while (state != FINAL_STATE)
+	{
+		int ch = isp->get();
+		int xch = 'e';
+		switch (state)
+		{
+		case INITIAL_STATE:
+			if (!isdigit(ch))
+			{
+				error("Internal error: illegal call to scanNumber");
+			}
+			state = BEFORE_DECIMAL_POINT;
+			break;
+		case BEFORE_DECIMAL_POINT:
+			if (ch == '.')
+			{
+				state = AFTER_DECIMAL_POINT;
+			}
+			else if (ch == 'E' || ch == 'e')
+			{
+				state = STARTING_EXPONENT;
+				xch = ch;
+			}
+			else if (!isdigit(ch))
+			{
+				if (ch != EOF) isp->unget();
+				state = FINAL_STATE;
+			}
+			break;
+		case AFTER_DECIMAL_POINT:
+			if (ch == 'E' || ch == 'e')
+			{
+				state = STARTING_EXPONENT;
+				xch = ch;
+			}
+			else if (!isdigit(ch))
+			{
+				if (ch != EOF) isp->unget();
+				state = FINAL_STATE;
+			}
+			break;
+		case STARTING_EXPONENT:
+			if (ch == '+' || ch == '-')
+			{
+				state = FOUND_EXPONENT_SIGN;
+			}
+			else if (isdigit(ch))
+			{
+				state = SCANNING_EXPONENT;
+			}
+			else
+			{
+				if (ch != EOF) isp->unget();
+				isp->unget();
+				state = FINAL_STATE;
+			}
+			break;
+		case FOUND_EXPONENT_SIGN:
+			if (isdigit(ch))
+			{
+				state = SCANNING_EXPONENT;
+			}
+			else
+			{
+				if (ch != EOF) isp->unget();
+				isp->unget();
+				isp->unget();
+				state = FINAL_STATE;
+			}
+			break;
+		case SCANNING_EXPONENT:
+			if (!isdigit(ch))
+			{
+				if (ch != EOF) isp->unget();
+				state = FINAL_STATE;
+			}
+			break;
+		default:
+			state = FINAL_STATE;
+			break;
+		}
+		if (state != FINAL_STATE)
+		{
+			token += char(ch);
+		}
+	}
+	return token;
 }
 
 /*
@@ -375,19 +467,21 @@ string TokenScanner::scanNumber() {
  * there is no closing quotation mark before the end of the input.
  */
 
-string TokenScanner::scanString() {
-   string token = "";
-   char delim = isp->get();
-   token += delim;
-   bool escape = false;
-   while (true) {
-      int ch = isp->get();
-      if (ch == EOF) error("TokenScanner found unterminated string");
-      if (ch == delim && !escape) break;
-      escape = (ch == '\\') && !escape;
-      token += ch;
-   }
-   return token + delim;
+string TokenScanner::scanString()
+{
+	string token = "";
+	char delim = isp->get();
+	token += delim;
+	bool escape = false;
+	while (true)
+	{
+		int ch = isp->get();
+		if (ch == EOF) error("TokenScanner found unterminated string");
+		if (ch == delim && !escape) break;
+		escape = (ch == '\\') && !escape;
+		token += ch;
+	}
+	return token + delim;
 }
 
 /*
@@ -399,16 +493,20 @@ string TokenScanner::scanString() {
  * efficient by implementing operators as a trie.
  */
 
-bool TokenScanner::isOperator(string op) {
-   for (StringCell *cp = operators; cp != NULL; cp = cp->link) {
-      if (op == cp->str) return true;
-   }
-   return false;
+bool TokenScanner::isOperator(string op)
+{
+	for (StringCell *cp = operators; cp != NULL; cp = cp->link)
+	{
+		if (op == cp->str) return true;
+	}
+	return false;
 }
 
-bool TokenScanner::isOperatorPrefix(string op) {
-   for (StringCell *cp = operators; cp != NULL; cp = cp->link) {
-      if (startsWith(cp->str, op)) return true;
-   }
-   return false;
+bool TokenScanner::isOperatorPrefix(string op)
+{
+	for (StringCell *cp = operators; cp != NULL; cp = cp->link)
+	{
+		if (startsWith(cp->str, op)) return true;
+	}
+	return false;
 }

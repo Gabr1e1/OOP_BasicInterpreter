@@ -71,11 +71,11 @@ Expression *readT(TokenScanner & scanner)
 	TokenType type = scanner.getTokenType(token);
 	if (type == WORD) return new IdentifierExp(token);
 	if (type == NUMBER) return new ConstantExp(stringToInteger(token));
-	if (token != "(") error("Illegal term in expression");
+	if (token != "(") error("SYNTAX ERROR"); // error("Illegal term in expression");
 	Expression *exp = readE(scanner);
 	if (scanner.nextToken() != ")")
 	{
-		error("Unbalanced parentheses in expression");
+		error("SYNTAX ERROR"); //error("Unbalanced parentheses in expression");
 	}
 	return exp;
 }
