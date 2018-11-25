@@ -87,9 +87,6 @@ int Program::getNextLineNumber(int lineNumber)
 
 void Program::execute()
 {
-	if (state != nullptr) delete state;
-	state = new EvalState();
-
 	pair<int, Statement*> cur = *programTable.begin();
 	while (cur.first != -1)
 	{
