@@ -95,7 +95,7 @@ public:
 	~SequentialStatement();
 
 public:
-	void execute(EvalState &state);
+	virtual void execute(EvalState &state);
 	bool hasEnd();
 
 private:
@@ -112,7 +112,7 @@ public:
 	~ControlStatement();
 
 public:
-	void execute(EvalState &state);
+	virtual void execute(EvalState &state);
 	int getNextLine(EvalState &state);
 
 private:
@@ -127,7 +127,7 @@ public:
 	~DirectlyExecutedStatement();
 
 public:
-	void execute(EvalState &state);
+	virtual void execute(EvalState &state);
 
 private:
 	int typeId;
