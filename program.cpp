@@ -65,16 +65,7 @@ void Program::addSourceLine(int lineNumber, string line)
 	}
 	else if (typeId == DIRECTLY_EXECUTED)
 	{
-		DirectlyExecutedStatement* cur = nullptr;
-		try
-		{
-			auto cur = DirectlyExecutedStatement(line);
-		}
-		catch (ErrorException &x)
-		{
-			if (cur != nullptr) delete cur;
-			cout << x.getMessage() << endl;
-		}
+		auto cur = DirectlyExecutedStatement(line);
 		cur.execute(*state);
 	}
 }
