@@ -23,6 +23,10 @@ Program::~Program()
 
 void Program::clear()
 {
+	for (auto u : programTable)
+	{
+		if (u.second != nullptr) delete u.second;
+	}
 	programTable.clear();
 	delete state;
 	state = new EvalState();
@@ -33,17 +37,44 @@ void Program::addSourceLine(int lineNumber, string line)
 	StatementType typeId = analyzeStatement(line);
 	if (typeId == SEQUENTIAL)
 	{
-		auto cur = new SequentialStatement(line);
-		programTable[lineNumber] = cur;
+		SequentialStatement* cur = nullptr;
+		try
+		{
+			cur = new SequentialStatement(line);
+			programTable[lineNumber] = cur;
+		}
+		catch (ErrorException &x)
+		{
+			if (cur != nullptr) delete cur;
+			cout << x.getMessage() << endl;
+		}
 	}
 	else if (typeId == CONTROL)
 	{
-		auto cur = new ControlStatement(line);
-		programTable[lineNumber] = cur;
+		ControlStatement* cur = nullptr;
+		try
+		{
+			auto cur = new ControlStatement(line);
+			programTable[lineNumber] = cur;
+		}
+		catch (ErrorException &x)
+		{
+			if (cur != nullptr) delete cur;
+			cout << x.getMessage() << endl;
+		}
 	}
 	else if (typeId == DIRECTLY_EXECUTED)
 	{
-		auto cur = DirectlyExecutedStatement(line);
+		DirectlyExecutedStatement* cur = nullptr;
+		try
+		{
+			auto cur = DirectlyExecutedStatement(line);
+		}
+		catch (ErrorException &x)
+		{
+			if (cur != nullptr) delete cur;
+			cout << x.getMessage() << endl;
+		}
 		cur.execute(*state);
 	}
 }

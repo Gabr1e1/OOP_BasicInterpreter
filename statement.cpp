@@ -54,6 +54,7 @@ SequentialStatement::SequentialStatement(string &_line) : Statement(_line), term
 	else if (identifier == "PRINT") typeId = 3;
 	else if (identifier == "INPUT") typeId = 4;
 	else if (identifier == "END") typeId = 5;
+	else error("SYNTAX ERROR");
 }
 
 SequentialStatement::~SequentialStatement()
