@@ -92,7 +92,7 @@ class SequentialStatement : public Statement
 {
 public:
 	SequentialStatement(string &_line);
-	~SequentialStatement();
+	virtual ~SequentialStatement();
 
 public:
 	virtual void execute(EvalState &state);
@@ -109,7 +109,7 @@ class ControlStatement : public Statement
 {
 public:
 	ControlStatement(string &_line);
-	~ControlStatement();
+	virtual ~ControlStatement();
 
 public:
 	virtual void execute(EvalState &state);
@@ -124,7 +124,7 @@ class DirectlyExecutedStatement : public Statement
 {
 public:
 	DirectlyExecutedStatement(string &line);
-	~DirectlyExecutedStatement();
+	virtual ~DirectlyExecutedStatement();
 
 public:
 	virtual void execute(EvalState &state);
