@@ -112,7 +112,7 @@ void SequentialStatement::execute(EvalState &state)
 	else exp->eval(state);
 }
 
-ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0), gotoLine(0)
+ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0), gotoLine(0), lhs(nullptr), rhs(nullptr)
 {
 	string t = line.substr(line.find(" ") + 1, line.length() - line.find(" ") - 1);
 	size_t p = t.find(" ");

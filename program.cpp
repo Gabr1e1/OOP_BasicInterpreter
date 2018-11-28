@@ -18,13 +18,14 @@ Program::Program()
 
 Program::~Program()
 {
-	/* Empty */
+	programTable.clear();
+	if (state != nullptr) delete state;
 }
 
 void Program::clear()
 {
 	programTable.clear();
-	delete state;
+	if (state != nullptr) delete state;
 	state = new EvalState();
 }
 
