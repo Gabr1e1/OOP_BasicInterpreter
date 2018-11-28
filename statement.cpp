@@ -59,7 +59,7 @@ SequentialStatement::SequentialStatement(string &_line) : Statement(_line), term
 
 SequentialStatement::~SequentialStatement()
 {
-	delete exp;
+	if (exp != nullptr) delete exp;
 }
 
 bool SequentialStatement::hasEnd()
@@ -148,8 +148,8 @@ ControlStatement::ControlStatement(string &_line) : Statement(_line), cmpId(0), 
 
 ControlStatement::~ControlStatement()
 {
-	delete lhs;
-	delete rhs;
+	if (lhs != nullptr) delete lhs;
+	if (rhs != nullptr) delete rhs;
 }
 
 void ControlStatement::execute(EvalState &state)
@@ -192,7 +192,7 @@ DirectlyExecutedStatement::DirectlyExecutedStatement(string &_line) : Statement(
 
 DirectlyExecutedStatement::~DirectlyExecutedStatement()
 {
-	delete exp;
+	if (exp != nullptr) delete exp;
 }
 
 void DirectlyExecutedStatement::execute(EvalState &state)
