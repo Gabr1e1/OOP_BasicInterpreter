@@ -23,10 +23,6 @@ Program::~Program()
 
 void Program::clear()
 {
-	for (auto u : programTable)
-	{
-		if (u.second != nullptr) delete u.second;
-	}
 	programTable.clear();
 	delete state;
 	state = new EvalState();
@@ -35,33 +31,19 @@ void Program::clear()
 void Program::addSourceLine(int lineNumber, string line)
 {
 	StatementType typeId = analyzeStatement(line);
+	shared_ptr<Statement> cur;
+
 	if (typeId == SEQUENTIAL)
 	{
-		SequentialStatement* cur = nullptr;
-		try
-		{
-			cur = new SequentialStatement(line);
-			programTable[lineNumber] = cur;
-		}
-		catch (ErrorException &x)
-		{
-			if (cur != nullptr) delete cur;
-			cout << x.getMessage() << endl;
-		}
+		shared_ptr<SequentialStatement> tmp (new SequentialStatement(line));
+		cur = dynamic_pointer_cast<Statement>(tmp);
+		programTable[lineNumber] = cur;
 	}
 	else if (typeId == CONTROL)
 	{
-		ControlStatement* cur = nullptr;
-		try
-		{
-			auto cur = new ControlStatement(line);
-			programTable[lineNumber] = cur;
-		}
-		catch (ErrorException &x)
-		{
-			if (cur != nullptr) delete cur;
-			cout << x.getMessage() << endl;
-		}
+		shared_ptr<ControlStatement> tmp (new ControlStatement(line));
+		cur = dynamic_pointer_cast<Statement>(tmp);
+		programTable[lineNumber] = cur;
 	}
 	else if (typeId == DIRECTLY_EXECUTED)
 	{
@@ -72,8 +54,8 @@ void Program::addSourceLine(int lineNumber, string line)
 
 void Program::removeSourceLine(int lineNumber)
 {
-	auto t = programTable[lineNumber];
-	delete t;
+	//auto t = programTable[lineNumber];
+	//delete t;
 	programTable.erase(lineNumber);
 }
 
@@ -82,7 +64,7 @@ string Program::getSourceLine(int lineNumber)
 	return programTable[lineNumber]->getLine();
 }
 
-void Program::setParsedStatement(int lineNumber, Statement *stmt)
+void Program::setParsedStatement(int lineNumber, shared_ptr<Statement> &stmt)
 {
 	/*
 	Method not needed
@@ -90,7 +72,7 @@ void Program::setParsedStatement(int lineNumber, Statement *stmt)
 	*/
 }
 
-Statement *Program::getParsedStatement(int lineNumber)
+shared_ptr<Statement> Program::getParsedStatement(int lineNumber)
 {
 	return programTable[lineNumber];
 }
@@ -109,7 +91,7 @@ int Program::getNextLineNumber(int lineNumber)
 
 void Program::execute()
 {
-	pair<int, Statement*> cur = *programTable.begin();
+	pair<int,shared_ptr<Statement>> cur = *programTable.begin();
 	while (cur.first != -1)
 	{
 		//cout << "Current line: " << cur.first << " " << cur.second->getLine() << endl;
@@ -117,13 +99,13 @@ void Program::execute()
 		if (type == SEQUENTIAL)
 		{
 			cur.second->execute(*state);
-			if ((static_cast<SequentialStatement*>(cur.second))->hasEnd()) break;
+			if ((dynamic_pointer_cast<SequentialStatement>(cur.second))->hasEnd()) break;
 			int t = getNextLineNumber(cur.first);
 			cur = make_pair(t, programTable.count(t) ? programTable[t] : nullptr);
 		}
 		if (type == CONTROL)
 		{
-			int t = (static_cast<ControlStatement*>(cur.second))->getNextLine(*state);
+			int t = (dynamic_pointer_cast<ControlStatement>(cur.second))->getNextLine(*state);
 			if (t == 0) t = getNextLineNumber(cur.first);
 			else if (!programTable.count(t)) error("LINE NUMBER ERROR");
 			cur = make_pair(t, programTable[t]);

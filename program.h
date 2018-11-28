@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <memory>
 #include "statement.h"
 using namespace std;
 
@@ -106,7 +107,7 @@ public:
 	 * exists, the memory for that statement is reclaimed.
 	 */
 
-	void setParsedStatement(int lineNumber, Statement *stmt);
+	void setParsedStatement(int lineNumber, shared_ptr<Statement> &stmt);
 
 	/*
 	 * Method: getParsedStatement
@@ -117,7 +118,7 @@ public:
 	 * returns NULL.
 	 */
 
-	Statement *getParsedStatement(int lineNumber);
+	shared_ptr<Statement> getParsedStatement(int lineNumber);
 
 	/*
 	 * Method: getFirstLineNumber
@@ -145,7 +146,7 @@ public:
 	ResultType runCommand(string &line);
 
 private:
-	map<int, Statement*> programTable;
+	map<int, shared_ptr<Statement>> programTable;
 	EvalState *state;
 };
 
