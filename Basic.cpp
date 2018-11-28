@@ -2,9 +2,7 @@
  * File: Basic.cpp
  * ---------------
  * Name: Zhang Zhicheng
- * This file is the starter project for the BASIC interpreter from
- * Assignment #6.
- * [TODO: extend and correct the documentation]
+ * Student Id: 518030910439
  */
 
 #include <cctype>
