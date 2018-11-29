@@ -90,7 +90,6 @@ void SequentialStatement::execute(EvalState &state)
 					val += ch;
 					ch = getchar();
 				}
-
 				stringToInteger(val);
 				break;
 			}
@@ -100,7 +99,7 @@ void SequentialStatement::execute(EvalState &state)
 				val = "";
 			}
 		}
-		addStr = " = " + integerToString(stringToInteger(val));
+		addStr = " = " + val;
 	}
 
 	TokenScanner scanner;
@@ -222,7 +221,7 @@ void DirectlyExecutedStatement::execute(EvalState &state)
 				val = "";
 			}
 		}
-		addStr = " = " + integerToString(stringToInteger(val));
+		addStr = " = " + val;
 	}
 
 	TokenScanner scanner;
