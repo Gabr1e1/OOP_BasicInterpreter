@@ -67,7 +67,8 @@ int main()
 
 ResultType processLine(string line, Program & program, EvalState & state)
 {
-	if (line.length() == 0 || line == " ") return EXECUTED;
+	while (line[line.length() - 1] == " ") line = line.substr(0, line.length() - 2);
+	if (line.length() == 0) return EXECUTED;
 	StatementType curType = analyzeStatement(line);
 	if (curType == COMMAND)
 	{
